@@ -27,19 +27,20 @@ public class Main {
         String filepath = "/home/kev/Downloads/owid-covid-data.csv";
         List<List<String>> lines = getLines(filepath);
 
-        //get column indices
-        List<String> cols = lines.stream().findFirst().get();
-
-        //get list of countries
-        Map<Integer, Country> countries        = getCountries(lines, cols);
+        //get Map of countries
+        Map<Integer, Country> countries = getCountries(lines);
 
         //get covid-reports
-        Map<Integer, CovidReport> covidReports = getCovidReports(lines,cols);
-
+        Map<Integer, CovidReport> covidReports = getCovidReports(lines);
     }
 
-    private static Map<Integer, CovidReport> getCovidReports(List<List<String>> lines, List<String> cols) {
+    private static List<String> getColumns(List<List<String>> lines) {
+        return lines.stream().findFirst().get();
+    }
+
+    private static Map<Integer, CovidReport> getCovidReports(List<List<String>> lines) {
         //save indices needed by CovidReport's constructor
+        List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
         int dt  = cols.indexOf("date");
@@ -54,7 +55,7 @@ public class Main {
         int tt  = cols.indexOf("total_tests");
         int si  = cols.indexOf("stringency_index");
 
-        Map<Integer, CovidReport> output =                 lines.stream()
+        Map<Integer, CovidReport> output = lines.stream()
                 .skip(1)
                 .filter(x -> !x.get(cnt).equals(""))
                 .map(x -> new CovidReport(
@@ -78,8 +79,9 @@ public class Main {
         return output;
     }
 
-    private static Map<Integer, Country> getCountries(List<List<String>> lines, List<String> cols) {
+    private static Map<Integer, Country> getCountries(List<List<String>> lines) {
         //save indices needed by Country's constructor
+        List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
         int loc = cols.indexOf("location");
@@ -87,10 +89,10 @@ public class Main {
         int ma  = cols.indexOf("median_age");
 
         Map<Integer,Country> output = lines.stream()
-                .skip(1)                                                //skip column names
-                .filter(distinctByKey(x -> x.get(cod)))                 //pick only 1 entry per iso_code
-                .filter(x -> !x.get(cnt).equals(""))                    //entries w/out continent are not countries
-                .map(x -> new Country (                                 //create a Country from List<String> fields
+                .skip(1)                                 //skip column names
+                .filter(distinctByKey(x -> x.get(cod)))  //pick only 1 entry per iso_code
+                .filter(x -> !x.get(cnt).equals(""))     //entries w/out continent are not countries
+                .map(x -> new Country (                  //create a Country from List<String> fields
                         x.get(cod),
                         x.get(cnt),
                         x.get(loc),
