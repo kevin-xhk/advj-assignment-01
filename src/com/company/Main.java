@@ -30,32 +30,29 @@ public class Main {
         long startTime = System.nanoTime();
 
         //deal with arguments
-//        if(args.length <= 1){
-//            printUsageError();
-//            return;
-//        }
 //        processArgs(args);
 
 	    //read csv once and save it to a list of string-lists
         List<List<String>> lines = getLines(file);
 
-        //get Map of countries
-        Map<Integer, Country> countries = getCountries(lines);
-        //get Map of continents
-        Map<Integer, Continent> continents = getContinents(lines);
-        //get Map of world-entities
+        //get Maps of countries, continents and world-entities
+        Map<Integer, Country> countries         = getCountries(lines);
+        Map<Integer, Continent> continents      = getContinents(lines);
         Map<Integer, WorldEntity> worldEntities = getWorldEntities(lines);
 
         //get Map of covid-reports
         Map<Integer, CovidReport> covidReports = getCovidReports(lines);
 
         //process user request based on parameters
+        if(by.toLowerCase() == "date")      processRequest(worldEntities, covidReports);
+        if(by.toLowerCase() == "continent") processRequest(continents, covidReports);
+        if(by.toLowerCase() == "country")   processRequest(countries, covidReports);
+
         //processRequest(countries, covidReports);
 
         //end and process program execution time
         long endTime = System.nanoTime();
-        long duration = (endTime - startTime);
-        System.out.println("\nEXECUTION TIME: " + (duration / (1_000_000_000 + 0.00f)));
+        System.out.println("\nEXECUTION TIME: " + ((endTime - startTime) / (1_000_000_000 + 0.00f)));
     }
 
     private static Map<Integer,Continent> getContinents(List<List<String>> lines) {
@@ -83,7 +80,6 @@ public class Main {
                         (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
                         Function.identity()));
         System.out.println("CONTINENTS: " + output.size());
-        output.entrySet().stream().forEach(System.out::println);
         return output;
     }
 
@@ -112,13 +108,12 @@ public class Main {
                         (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
                         Function.identity()));
         System.out.println("WORLD ENTITIES: " + output.size());
-        output.entrySet().stream().forEach(System.out::println);
 
         return output;
     }
 
 
-    private static void processRequest(Map<Integer, Country> countries, Map<Integer, CovidReport> covidReports) {
+    private static <T> void processRequest(Map<Integer, ? extends T> entities, Map<Integer, CovidReport> covidReports) {
 //        covidReports.entrySet().stream()
 //                .sorted((rep1, rep2) -> rep1.getValue().get)
     }

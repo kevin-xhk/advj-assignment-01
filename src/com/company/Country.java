@@ -1,6 +1,6 @@
 package com.company;
 
-public class Country {
+public class Country<T> {
     String isocode;
     String continent;
     String location;

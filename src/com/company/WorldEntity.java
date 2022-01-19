@@ -1,6 +1,6 @@
 package com.company;
 
-public class WorldEntity {
+public class WorldEntity<T> {
     String isocode;
     String location;
     String population;
