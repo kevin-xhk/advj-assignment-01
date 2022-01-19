@@ -4,16 +4,19 @@ import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+
 public class Main {
+    static String file    = "/home/kev/Downloads/owid-covid-data.csv";
+    static String stat    = "max"; //either "min" or "max"
+    static int    limit   = 10; //from 1 to 100
+    static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
+    static String display = "NC"; //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
 
     //courtesy of https://stackoverflow.com/a/27872852
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -22,16 +25,58 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //TODO: MAKE PATH AS A COMMAND-LINE ARG
-	    //read csv
-        String filepath = "/home/kev/Downloads/owid-covid-data.csv";
-        List<List<String>> lines = getLines(filepath);
+        //start program execution time measurement
+        long startTime = System.nanoTime();
+
+        //deal with arguments
+//        if(args.length <= 1){
+//            printUsageError();
+//            return;
+//        }
+//        processArgs(args);
+
+	    //read csv once and save it to a list of string-lists
+        List<List<String>> lines = getLines(file);
 
         //get Map of countries
         Map<Integer, Country> countries = getCountries(lines);
+        //get Map of continents
+        Map<Integer, Continent> continents = getContinents(lines);
+        //get Map of world-entities
+        Map<Integer, WorldEntity> worldEntities = getWorldEntities(lines);
 
-        //get covid-reports
+        //get Map of covid-reports
         Map<Integer, CovidReport> covidReports = getCovidReports(lines);
+
+        //process user request based on parameters
+        processRequest(countries, covidReports);
+
+        //end and process program execution time
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
+        System.out.println("\nEXECUTION TIME: " + (duration / (1_000_000_000 + 0.00f)));
+    }
+
+    private static Map<Integer,Continent> getContinents(List<List<String>> lines) {
+        return null;
+    }
+
+    private static Map<Integer,WorldEntity> getWorldEntities(List<List<String>> lines) {
+        return null;
+    }
+
+    private static void processRequest(Map<Integer, Country> countries, Map<Integer, CovidReport> covidReports) {
+//        covidReports.entrySet().stream()
+//                .sorted((rep1, rep2) -> rep1.getValue().get)
+    }
+
+    private static void processArgs(String[] args) {
+        //TODO: write the actual implementation of argument-processing
+    }
+
+    private static void printUsageError() {
+        System.out.println("USAGE: -file pathToFile -param1 value1 -param2 value2 -paramM valueN …");
+        return;
     }
 
     private static List<String> getColumns(List<List<String>> lines) {
