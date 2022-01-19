@@ -36,17 +36,17 @@ public class Main {
         List<List<String>> lines = getLines(file);
 
         //get Maps of countries, continents and world-entities
-        Map<Integer, Country> countries         = getCountries(lines);
-        Map<Integer, Continent> continents      = getContinents(lines);
-        Map<Integer, WorldEntity> worldEntities = getWorldEntities(lines);
+        Map<Integer, Entity> countries     = getCountries(lines);
+        Map<Integer, Entity> continents    = getContinents(lines);
+        Map<Integer, Entity> worldEntities = getWorldEntities(lines);
 
         //get Map of covid-reports
         Map<Integer, CovidReport> covidReports = getCovidReports(lines);
 
         //process user request based on parameters
-        if(by.toLowerCase() == "date")      processRequest(worldEntities, covidReports);
-        if(by.toLowerCase() == "continent") processRequest(continents, covidReports);
-        if(by.toLowerCase() == "country")   processRequest(countries, covidReports);
+        if(by.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
+        if(by.equalsIgnoreCase("continent")) processRequest(continents, covidReports);
+        if(by.equalsIgnoreCase("country"))   processRequest(countries, covidReports);
 
         //processRequest(countries, covidReports);
 
@@ -55,7 +55,7 @@ public class Main {
         System.out.println("\nEXECUTION TIME: " + ((endTime - startTime) / (1_000_000_000 + 0.00f)));
     }
 
-    private static Map<Integer,Continent> getContinents(List<List<String>> lines) {
+    private static Map<Integer,Entity> getContinents(List<List<String>> lines) {
         List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
@@ -63,7 +63,7 @@ public class Main {
         int pop = cols.indexOf("population");
         int ma  = cols.indexOf("median_age");
 
-        Map<Integer,Continent> output = lines.stream()
+        Map<Integer,Entity> output = lines.stream()
                 .skip(1)                                //skip column names
                 .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
                 .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
@@ -83,7 +83,7 @@ public class Main {
         return output;
     }
 
-    private static Map<Integer,WorldEntity> getWorldEntities(List<List<String>> lines) {
+    private static Map<Integer,Entity> getWorldEntities(List<List<String>> lines) {
         List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
@@ -91,7 +91,7 @@ public class Main {
         int pop = cols.indexOf("population");
         int ma  = cols.indexOf("median_age");
 
-        Map<Integer,WorldEntity> output = lines.stream()
+        Map<Integer,Entity> output = lines.stream()
                 .skip(1)                                //skip column names
                 .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
                 .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
@@ -113,8 +113,13 @@ public class Main {
     }
 
 
-    private static <T> void processRequest(Map<Integer, ? extends T> entities, Map<Integer, CovidReport> covidReports) {
-//        covidReports.entrySet().stream()
+    private static <T> void processRequest(Map<Integer, Entity> entities, Map<Integer, CovidReport> covidReports) {
+        System.out.println("hello");
+        List<String> entityNames = entities.values().stream()
+                .map(x -> x.getLocation())
+                .toList();
+        entityNames.stream().forEach(System.out::println);
+        //        covidReports.entrySet().stream()
 //                .sorted((rep1, rep2) -> rep1.getValue().get)
     }
 
@@ -172,7 +177,7 @@ public class Main {
         return output;
     }
 
-    private static Map<Integer, Country> getCountries(List<List<String>> lines) {
+    private static Map<Integer, Entity> getCountries(List<List<String>> lines) {
         //save indices needed by Country's constructor
         List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
@@ -181,7 +186,7 @@ public class Main {
         int pop = cols.indexOf("population");
         int ma  = cols.indexOf("median_age");
 
-        Map<Integer,Country> output = lines.stream()
+        Map<Integer, Entity> output = lines.stream()
                 .skip(1)                                 //skip column names
                 .filter(distinctByKey(x -> x.get(cod)))  //pick only 1 entry per iso_code
                 .filter(x -> !x.get(cnt).equals(""))     //entries w/out continent are not countries

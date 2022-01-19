@@ -1,6 +1,6 @@
 package com.company;
 
-public class Continent<T> {
+public class Continent implements Entity{
     String isocode;
     String location;
     String population;
