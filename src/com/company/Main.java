@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 
 
 public class Main {
+    //parameters are hardcoded for the time being
     static String file    = "/home/kev/Downloads/owid-covid-data.csv";
-    static String stat    = "max"; //either "min" or "max"
-    static int    limit   = 10; //from 1 to 100
+    static String stat    = "max";     //either "min" or "max"
+    static int    limit   = 10;        //from 1 to 100
     static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
-    static String display = "NC"; //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
+    static String display = "NC";      //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
 
     //courtesy of https://stackoverflow.com/a/27872852
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -49,7 +50,7 @@ public class Main {
         Map<Integer, CovidReport> covidReports = getCovidReports(lines);
 
         //process user request based on parameters
-        processRequest(countries, covidReports);
+        //processRequest(countries, covidReports);
 
         //end and process program execution time
         long endTime = System.nanoTime();
@@ -58,12 +59,64 @@ public class Main {
     }
 
     private static Map<Integer,Continent> getContinents(List<List<String>> lines) {
-        return null;
+        List<String> cols = getColumns(lines);
+        int cod = cols.indexOf("iso_code");
+        int cnt = cols.indexOf("continent");
+        int loc = cols.indexOf("location");
+        int pop = cols.indexOf("population");
+        int ma  = cols.indexOf("median_age");
+
+        Map<Integer,Continent> output = lines.stream()
+                .skip(1)                                //skip column names
+                .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
+                .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
+                .filter(x -> !(x.get(loc).contains("income") ||
+                        x.get(loc).contains("International") ||
+                        x.get(loc).contains("Union") ||
+                        x.get(loc).contains("World")))
+                .map(x -> new Continent (               //create a Country from List<String> fields
+                        x.get(cod),
+                        x.get(loc),
+                        x.get(pop),
+                        x.get(ma)))
+                .collect(Collectors.toMap(
+                        (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
+                        Function.identity()));
+        System.out.println("CONTINENTS: " + output.size());
+        output.entrySet().stream().forEach(System.out::println);
+        return output;
     }
 
     private static Map<Integer,WorldEntity> getWorldEntities(List<List<String>> lines) {
-        return null;
+        List<String> cols = getColumns(lines);
+        int cod = cols.indexOf("iso_code");
+        int cnt = cols.indexOf("continent");
+        int loc = cols.indexOf("location");
+        int pop = cols.indexOf("population");
+        int ma  = cols.indexOf("median_age");
+
+        Map<Integer,WorldEntity> output = lines.stream()
+                .skip(1)                                //skip column names
+                .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
+                .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
+                .filter(x -> (x.get(loc).contains("income") ||
+                        x.get(loc).contains("International") ||
+                        x.get(loc).contains("Union") ||
+                        x.get(loc).contains("World")))
+                .map(x -> new WorldEntity (               //create a Country from List<String> fields
+                        x.get(cod),
+                        x.get(loc),
+                        x.get(pop),
+                        x.get(ma)))
+                .collect(Collectors.toMap(
+                        (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
+                        Function.identity()));
+        System.out.println("WORLD ENTITIES: " + output.size());
+        output.entrySet().stream().forEach(System.out::println);
+
+        return output;
     }
+
 
     private static void processRequest(Map<Integer, Country> countries, Map<Integer, CovidReport> covidReports) {
 //        covidReports.entrySet().stream()
@@ -102,7 +155,7 @@ public class Main {
 
         Map<Integer, CovidReport> output = lines.stream()
                 .skip(1)
-                .filter(x -> !x.get(cnt).equals(""))
+                //.filter(x -> !x.get(cnt).equals(""))
                 .map(x -> new CovidReport(
                         x.get(cod),
                         x.get(dt),
