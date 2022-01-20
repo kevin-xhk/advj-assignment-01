@@ -151,12 +151,12 @@ public class Main {
 
         List<CovidReport> output = null;
 
-
+        //TODO FILTER COVIDREPORTS BASED ON ENTITYNAMES ENTRIES
+        // https://stackoverflow.com/questions/27822703/java-8-stream-filtering-value-of-list-in-a-list
         output = covidReports.values().stream()
                 .sorted(aaaa.get(display.toLowerCase()+"-"+stat.toLowerCase()))
                 .limit(limit)
                 .toList();
-
 
         System.out.println("OUTPUT: ");
         //output.stream().forEach(x -> System.out.println(x.getNewCases() + " " + x.getIsocode()));
