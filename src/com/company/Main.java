@@ -16,8 +16,14 @@ public class Main {
     static String file    = "/home/kev/Downloads/owid-covid-data.csv";
     static String stat    = "max";     //either "min" or "max"
     static int    limit   = 10;        //from 1 to 100
-    static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
+    static String by      = "DATE"; //either "DATE", "COUNTRY" or "CONTINENT"
     static String display = "NC";      //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
+//
+//    Predicate<Entity> a = (x, y) -> Comparator.comparing(x.getIsocode());
+//    Map<String, Predicate<Entity>> statPredicate = new HashMap<>()
+//            .put("max", x-> Comparator.comparing(x.getIsocode()) );
+
+
 
     //courtesy of https://stackoverflow.com/a/27872852
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -55,7 +61,7 @@ public class Main {
         System.out.println("\nEXECUTION TIME: " + ((endTime - startTime) / (1_000_000_000 + 0.00f)));
     }
 
-    private static Map<Integer,Entity> getContinents(List<List<String>> lines) {
+    private static Map<Integer, Entity> getContinents(List<List<String>> lines) {
         List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
@@ -82,8 +88,33 @@ public class Main {
         System.out.println("CONTINENTS: " + output.size());
         return output;
     }
+    private static Map<Integer, Entity> getCountries(List<List<String>> lines) {
+        //save indices needed by Country's constructor
+        List<String> cols = getColumns(lines);
+        int cod = cols.indexOf("iso_code");
+        int cnt = cols.indexOf("continent");
+        int loc = cols.indexOf("location");
+        int pop = cols.indexOf("population");
+        int ma  = cols.indexOf("median_age");
 
-    private static Map<Integer,Entity> getWorldEntities(List<List<String>> lines) {
+        Map<Integer, Entity> output = lines.stream()
+                .skip(1)                                 //skip column names
+                .filter(distinctByKey(x -> x.get(cod)))  //pick only 1 entry per iso_code
+                .filter(x -> !x.get(cnt).equals(""))     //entries w/out continent are not countries
+                .map(x -> new Country (                  //create a Country from List<String> fields
+                        x.get(cod),
+                        x.get(cnt),
+                        x.get(loc),
+                        x.get(pop),
+                        x.get(ma)))
+                .collect(Collectors.toMap(
+                        (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
+                        Function.identity()));
+        System.out.println("COUNTRIES: " + output.size());
+
+        return output;
+    }
+    private static Map<Integer, Entity> getWorldEntities(List<List<String>> lines) {
         List<String> cols = getColumns(lines);
         int cod = cols.indexOf("iso_code");
         int cnt = cols.indexOf("continent");
@@ -114,9 +145,10 @@ public class Main {
 
 
     private static <T> void processRequest(Map<Integer, Entity> entities, Map<Integer, CovidReport> covidReports) {
-        System.out.println("hello");
+
         List<String> entityNames = entities.values().stream()
-                .map(x -> x.getLocation())
+                .map(x -> x.getIsocode())
+                .sorted()
                 .toList();
         entityNames.stream().forEach(System.out::println);
         //        covidReports.entrySet().stream()
@@ -128,8 +160,12 @@ public class Main {
     }
 
     private static void printUsageError() {
-        System.out.println("USAGE: -file pathToFile -param1 value1 -param2 value2 -paramM valueN …");
-        return;
+        System.out.println("USAGE: -file [filepath] -param1 [value1] -param2 [value2] -paramN valueN … \n"
+            + "-file:    path to file\n"
+            + "-stat:    either \'min\' or \'max\'\n"
+            + "-limit:   integer included in [1, 100] \n"
+            + "-by:      \'nc\', \'ncs\', \'nd\', \'nds\', \'nt\'\n"
+            + "-display: \'date\', \'continent\', \'country\'");
     }
 
     private static List<String> getColumns(List<List<String>> lines) {
@@ -172,37 +208,11 @@ public class Main {
                 .collect(Collectors.toMap(
                         (x -> (x.getIsocode() + x.getDate()).hashCode()), //make isocode + date as composite key
                         Function.identity()));
-        System.out.println("REPORTS: " + output.size());
+        System.out.println("REPORTS: " + output.size() + "\n");
 
         return output;
     }
 
-    private static Map<Integer, Entity> getCountries(List<List<String>> lines) {
-        //save indices needed by Country's constructor
-        List<String> cols = getColumns(lines);
-        int cod = cols.indexOf("iso_code");
-        int cnt = cols.indexOf("continent");
-        int loc = cols.indexOf("location");
-        int pop = cols.indexOf("population");
-        int ma  = cols.indexOf("median_age");
-
-        Map<Integer, Entity> output = lines.stream()
-                .skip(1)                                 //skip column names
-                .filter(distinctByKey(x -> x.get(cod)))  //pick only 1 entry per iso_code
-                .filter(x -> !x.get(cnt).equals(""))     //entries w/out continent are not countries
-                .map(x -> new Country (                  //create a Country from List<String> fields
-                        x.get(cod),
-                        x.get(cnt),
-                        x.get(loc),
-                        x.get(pop),
-                        x.get(ma)))
-                .collect(Collectors.toMap(
-                        (x -> x.getIsocode().hashCode()), //make isocode + date as composite key
-                        Function.identity()));
-        System.out.println("COUNTRIES: " + output.size());
-
-        return output;
-    }
 
     private static List<List<String>> getLines(String filepath) {
         Path path = Paths.get(filepath);

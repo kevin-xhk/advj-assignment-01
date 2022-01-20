@@ -2,7 +2,6 @@ package com.company;
 
 public interface Entity {
 
+    public String getIsocode();
     public String getLocation();
-
-    public void setLocation(String location);
 }
