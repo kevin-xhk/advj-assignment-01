@@ -3,30 +3,30 @@ package com.company;
 public class CovidReport {
     String isocode;
     String date;
-    String totalCases;
+    int totalCases;
     int newCases;
-    String newCasesSmoothed;
-    String totalDeaths;
-    String newDeaths;
-    String newDeathsSmoothed;
-    String reproductionRate;
-    String newTests;
-    String totalTests;
-    String stringencyIndex;
+    float newCasesSmoothed;
+    int totalDeaths;
+    int newDeaths;
+    float newDeathsSmoothed;
+    float reproductionRate;
+    int newTests;
+    int totalTests;
+    float stringencyIndex;
 
     public CovidReport(String isocode, String date, String totalCases, String newCases, String newCasesSmoothed, String totalDeaths, String newDeaths, String newDeathsSmoothed, String reproductionRate, String newTests, String totalTests, String stringencyIndex) {
         this.isocode = isocode;
         this.date = date;
-        this.totalCases = totalCases;
+        this.totalCases = totalCases.equals("") ? 0 : (int) Float.parseFloat(totalCases);
         this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);
-        this.newCasesSmoothed = newCasesSmoothed;
-        this.totalDeaths = totalDeaths;
-        this.newDeaths = newDeaths;
-        this.newDeathsSmoothed = newDeathsSmoothed;
-        this.reproductionRate = reproductionRate;
-        this.newTests = newTests;
-        this.totalTests = totalTests;
-        this.stringencyIndex = stringencyIndex;
+        this.newCasesSmoothed = newCasesSmoothed.equals("") ? 0.0f : Float.parseFloat(newCasesSmoothed);
+        this.totalDeaths = totalDeaths.equals("") ? 0 : (int) Float.parseFloat(totalDeaths);
+        this.newDeaths = newDeaths.equals("") ? 0 : (int) Float.parseFloat(newDeaths);
+        this.newDeathsSmoothed = newDeathsSmoothed.equals("") ? 0.0f : Float.parseFloat(newDeathsSmoothed);
+        this.reproductionRate = reproductionRate.equals("") ? 0.0f : Float.parseFloat(reproductionRate);
+        this.newTests = newTests.equals("") ? 0 : (int) Float.parseFloat(newTests);
+        this.totalTests = totalTests.equals("") ? 0 : (int) Float.parseFloat(totalTests);
+        this.stringencyIndex = stringencyIndex.equals("") ? 0.0f : Float.parseFloat(stringencyIndex);
     }
 
     public String getIsocode() {
@@ -45,12 +45,12 @@ public class CovidReport {
         this.date = date;
     }
 
-    public String getTotalCases() {
+    public int getTotalCases() {
         return totalCases;
     }
 
     public void setTotalCases(String totalCases) {
-        this.totalCases = totalCases;
+        this.totalCases = totalCases.equals("") ? 0 : (int) Float.parseFloat(totalCases);
     }
 
     public int getNewCases() {
@@ -61,68 +61,68 @@ public class CovidReport {
         this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);;
     }
 
-    public String getNewCasesSmoothed() {
+    public float getNewCasesSmoothed() {
         return newCasesSmoothed;
     }
 
     public void setNewCasesSmoothed(String newCasesSmoothed) {
-        this.newCasesSmoothed = newCasesSmoothed;
+        this.newCasesSmoothed = newCasesSmoothed.equals("") ? 0 : Float.parseFloat(newCasesSmoothed);
     }
 
-    public String getTotalDeaths() {
+    public int getTotalDeaths() {
         return totalDeaths;
     }
 
     public void setTotalDeaths(String totalDeaths) {
-        this.totalDeaths = totalDeaths;
+        this.totalDeaths = totalDeaths.equals("") ? 0 : (int) Float.parseFloat(totalDeaths);
     }
 
-    public String getNewDeaths() {
+    public int getNewDeaths() {
         return newDeaths;
     }
 
     public void setNewDeaths(String newDeaths) {
-        this.newDeaths = newDeaths;
+        this.newDeaths = newDeaths.equals("") ? 0 : (int) Float.parseFloat(newDeaths);
     }
 
-    public String getNewDeathsSmoothed() {
+    public float getNewDeathsSmoothed() {
         return newDeathsSmoothed;
     }
 
     public void setNewDeathsSmoothed(String newDeathsSmoothed) {
-        this.newDeathsSmoothed = newDeathsSmoothed;
+        this.newDeathsSmoothed = newDeathsSmoothed.equals("") ? 0 : Float.parseFloat(newDeathsSmoothed);
     }
 
-    public String getReproductionRate() {
+    public float getReproductionRate() {
         return reproductionRate;
     }
 
     public void setReproductionRate(String reproductionRate) {
-        this.reproductionRate = reproductionRate;
+        this.reproductionRate = reproductionRate.equals("") ? 0 : Float.parseFloat(reproductionRate);
     }
 
-    public String getNewTests() {
+    public int getNewTests() {
         return newTests;
     }
 
     public void setNewTests(String newTests) {
-        this.newTests = newTests;
+        this.newTests = newTests.equals("") ? 0 : (int) Float.parseFloat(newTests);
     }
 
-    public String getTotalTests() {
+    public int getTotalTests() {
         return totalTests;
     }
 
     public void setTotalTests(String totalTests) {
-        this.totalTests = totalTests;
+        this.totalTests = totalTests.equals("") ? 0 : (int) Float.parseFloat(totalTests);
     }
 
-    public String getStringencyIndex() {
+    public float getStringencyIndex() {
         return stringencyIndex;
     }
 
     public void setStringencyIndex(String stringencyIndex) {
-        this.stringencyIndex = stringencyIndex;
+        this.stringencyIndex = stringencyIndex.equals("") ? 0 : Float.parseFloat(stringencyIndex);
     }
 
     @Override

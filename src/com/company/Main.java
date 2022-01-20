@@ -15,10 +15,10 @@ public class Main {
     //parameters are hardcoded for the time being
     //static String file    = "/home/kev/Downloads/owid-covid-data.csv";
     static String file    = "E:\\Internet DLs\\owid-covid-data (1).csv";
-    static String stat    = "min";     //either "min" or "max"
-    static int    limit   = 10;        //from 1 to 100
+    static String stat    = "max";     //either "min" or "max"
+    static int    limit   = 3;        //from 1 to 100
     static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
-    static String display = "NC";      //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
+    static String display = "ND";      //"NC" "NCS" "ND" "NDS" "NT"
 
     static Map<String, Comparator<? super CovidReport>> aaaa = new HashMap<>();
 
@@ -166,12 +166,19 @@ public class Main {
     private static void processArgs(String[] args) {
         //TODO: write the actual implementation of argument-processing
 
-        aaaa.put("nc-max", (x, y) -> {
-            return y.getNewCases() - x.getNewCases();
-        });
-        aaaa.put("nc-min", (x, y) -> {
-            return x.getNewCases() - y.getNewCases();
-        });
+//        aaaa.put("nc-max", (x, y) -> {
+//            return y.getNewCases() - x.getNewCases();
+//        });
+        aaaa.put("nc-max", Comparator.comparingInt(CovidReport::getNewCases).reversed());
+        aaaa.put("nc-min", Comparator.comparingInt(CovidReport::getNewCases));
+        aaaa.put("ncs-max", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed).reversed());
+        aaaa.put("ncs-min", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed));
+        aaaa.put("nd-max", Comparator.comparingInt(CovidReport::getNewDeaths).reversed());
+        aaaa.put("nd-min", Comparator.comparingInt(CovidReport::getNewDeaths));
+        aaaa.put("nds-max", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed).reversed());
+        aaaa.put("nds-min", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed));
+        aaaa.put("nt-max", Comparator.comparingInt(CovidReport::getNewTests).reversed());
+        aaaa.put("nt-min", Comparator.comparingInt(CovidReport::getNewTests));
     }
 
     private static void printUsageError() {
