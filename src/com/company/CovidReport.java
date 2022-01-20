@@ -4,7 +4,7 @@ public class CovidReport {
     String isocode;
     String date;
     String totalCases;
-    String newCases;
+    int newCases;
     String newCasesSmoothed;
     String totalDeaths;
     String newDeaths;
@@ -18,7 +18,7 @@ public class CovidReport {
         this.isocode = isocode;
         this.date = date;
         this.totalCases = totalCases;
-        this.newCases = newCases;
+        this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);
         this.newCasesSmoothed = newCasesSmoothed;
         this.totalDeaths = totalDeaths;
         this.newDeaths = newDeaths;
@@ -53,12 +53,12 @@ public class CovidReport {
         this.totalCases = totalCases;
     }
 
-    public String getNewCases() {
+    public int getNewCases() {
         return newCases;
     }
 
     public void setNewCases(String newCases) {
-        this.newCases = newCases;
+        this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);;
     }
 
     public String getNewCasesSmoothed() {

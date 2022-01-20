@@ -13,17 +13,14 @@ import java.util.stream.Collectors;
 
 public class Main {
     //parameters are hardcoded for the time being
-    static String file    = "/home/kev/Downloads/owid-covid-data.csv";
-    static String stat    = "max";     //either "min" or "max"
+    //static String file    = "/home/kev/Downloads/owid-covid-data.csv";
+    static String file    = "E:\\Internet DLs\\owid-covid-data (1).csv";
+    static String stat    = "min";     //either "min" or "max"
     static int    limit   = 10;        //from 1 to 100
-    static String by      = "DATE"; //either "DATE", "COUNTRY" or "CONTINENT"
+    static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
     static String display = "NC";      //"NC" "NCS" "ND" "NDS" "NT" "NDPC???"
-//
-//    Predicate<Entity> a = (x, y) -> Comparator.comparing(x.getIsocode());
-//    Map<String, Predicate<Entity>> statPredicate = new HashMap<>()
-//            .put("max", x-> Comparator.comparing(x.getIsocode()) );
 
-
+    static Map<String, Comparator<? super CovidReport>> aaaa = new HashMap<>();
 
     //courtesy of https://stackoverflow.com/a/27872852
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -36,7 +33,7 @@ public class Main {
         long startTime = System.nanoTime();
 
         //deal with arguments
-//        processArgs(args);
+        processArgs(args);
 
 	    //read csv once and save it to a list of string-lists
         List<List<String>> lines = getLines(file);
@@ -144,19 +141,37 @@ public class Main {
     }
 
 
-    private static <T> void processRequest(Map<Integer, Entity> entities, Map<Integer, CovidReport> covidReports) {
+    private static void processRequest(Map<Integer, Entity> entities, Map<Integer, CovidReport> covidReports) {
 
         List<String> entityNames = entities.values().stream()
                 .map(x -> x.getIsocode())
                 .sorted()
                 .toList();
-        entityNames.stream().forEach(System.out::println);
-        //        covidReports.entrySet().stream()
-//                .sorted((rep1, rep2) -> rep1.getValue().get)
+        //entityNames.stream().forEach(System.out::println);
+
+        List<CovidReport> output = null;
+
+
+        output = covidReports.values().stream()
+                .sorted(aaaa.get(display.toLowerCase()+"-"+stat.toLowerCase()))
+                .limit(limit)
+                .toList();
+
+
+        System.out.println("OUTPUT: ");
+        //output.stream().forEach(x -> System.out.println(x.getNewCases() + " " + x.getIsocode()));
+        output.stream().forEach(System.out::println);
     }
 
     private static void processArgs(String[] args) {
         //TODO: write the actual implementation of argument-processing
+
+        aaaa.put("nc-max", (x, y) -> {
+            return y.getNewCases() - x.getNewCases();
+        });
+        aaaa.put("nc-min", (x, y) -> {
+            return x.getNewCases() - y.getNewCases();
+        });
     }
 
     private static void printUsageError() {
@@ -212,7 +227,6 @@ public class Main {
 
         return output;
     }
-
 
     private static List<List<String>> getLines(String filepath) {
         Path path = Paths.get(filepath);
