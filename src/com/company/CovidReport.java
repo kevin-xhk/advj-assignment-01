@@ -13,6 +13,7 @@ public class CovidReport {
     int newTests;
     int totalTests;
     float stringencyIndex;
+    float newDeathsPerCase;
 
     public CovidReport(String isocode, String date, String totalCases, String newCases, String newCasesSmoothed, String totalDeaths, String newDeaths, String newDeathsSmoothed, String reproductionRate, String newTests, String totalTests, String stringencyIndex) {
         this.isocode = isocode;
@@ -27,6 +28,8 @@ public class CovidReport {
         this.newTests = newTests.equals("") ? 0 : (int) Float.parseFloat(newTests);
         this.totalTests = totalTests.equals("") ? 0 : (int) Float.parseFloat(totalTests);
         this.stringencyIndex = stringencyIndex.equals("") ? 0.0f : Float.parseFloat(stringencyIndex);
+        this.newDeathsPerCase = (newDeaths.equals("") ? 0.0f : Float.parseFloat(newDeaths))
+                / (newCases.equals("") ? 0.0f :  Float.parseFloat(newCases));
     }
 
     public String getIsocode() {
@@ -58,7 +61,8 @@ public class CovidReport {
     }
 
     public void setNewCases(String newCases) {
-        this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);;
+        this.newCases = newCases.equals("") ? 0 : (int) Float.parseFloat(newCases);
+        updateNewDeathsPerCase();
     }
 
     public float getNewCasesSmoothed() {
@@ -83,6 +87,7 @@ public class CovidReport {
 
     public void setNewDeaths(String newDeaths) {
         this.newDeaths = newDeaths.equals("") ? 0 : (int) Float.parseFloat(newDeaths);
+        updateNewDeathsPerCase();
     }
 
     public float getNewDeathsSmoothed() {
@@ -125,6 +130,15 @@ public class CovidReport {
         this.stringencyIndex = stringencyIndex.equals("") ? 0 : Float.parseFloat(stringencyIndex);
     }
 
+    public float getNewDeathsPerCase() {
+        return newDeathsPerCase;
+    }
+
+    private void updateNewDeathsPerCase() {
+        this.newDeathsPerCase = (newDeaths+0.0f) / newCases;
+    }
+
+
     @Override
     public String toString() {
         return "CovidReport{" +
@@ -140,6 +154,7 @@ public class CovidReport {
                 ", newTests='" + newTests + '\'' +
                 ", totalTests='" + totalTests + '\'' +
                 ", stringencyIndex='" + stringencyIndex + '\'' +
+                ", newDeathsPerCase=' " + newDeathsPerCase + '\'' +
                 '}';
     }
 }

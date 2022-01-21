@@ -17,7 +17,7 @@ public class Main {
     static String stat;     //either "min" or "max"
     static int    limit;    //from 1 to 100
     static String by;       //either "DATE", "COUNTRY" or "CONTINENT"
-    static String display;  //"NC" "NCS" "ND" "NDS" "NT"
+    static String display;  //"NC" "NCS" "ND" "NDS" "NT" "NDPC"
 
     //contains the comparators needed for sorting, [key=stat+by, value=appropriate comparator]
     static Map<String, Comparator<? super CovidReport>> filterOptions;
@@ -35,7 +35,7 @@ public class Main {
             return;
         }
 
-        // start program execution time measurement
+        // start execution time measurement
         long startTime = System.nanoTime();
 
         // deal with arguments
@@ -44,7 +44,7 @@ public class Main {
 	    // read csv once, store it in a list of string-lists
         List<List<String>> lines = getLines(file);
 
-        //get Maps of countries, continents and world-entities
+        // get Maps of countries, continents and world-entities
         Map<Integer, Entity> countries     = getCountries(lines);
         Map<Integer, Entity> continents    = getContinents(lines);
         Map<Integer, Entity> worldEntities = getWorldEntities(lines);
