@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 
 
 public class Main {
-    //parameters are hardcoded for the time being
-    //static String file    = "/home/kev/Downloads/owid-covid-data.csv";
-    static String file    = "E:\\Internet DLs\\owid-covid-data (1).csv";
-    static String stat    = "max";                            //either "min" or "max"
-    static int    limit   = 3;                                //from 1 to 100
-    static String by      = "COUNTRY";                        //either "DATE", "COUNTRY" or "CONTINENT"
-    static String display = "NC";                             //"NC" "NCS" "ND" "NDS" "NT"
+    //parameters that will be used to fit query to user needs
+    static String file;     //filepath
+    static String stat;     //either "min" or "max"
+    static int    limit;    //from 1 to 100
+    static String by;       //either "DATE", "COUNTRY" or "CONTINENT"
+    static String display;  //"NC" "NCS" "ND" "NDS" "NT"
 
+    //contains the comparators needed for sorting, [key=stat+by, value=appropriate comparator]
     static Map<String, Comparator<? super CovidReport>> filterOptions;
 
     //courtesy of https://stackoverflow.com/a/27872852
@@ -29,13 +29,19 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //start program execution time measurement
+        // make sure we have the number of args needed
+        if(args.length <= 9){
+            printUsageError();
+            return;
+        }
+
+        // start program execution time measurement
         long startTime = System.nanoTime();
 
-        //deal with arguments
+        // deal with arguments
         processArgs(args);
 
-	    //read csv once and save it to a list of string-lists
+	    // read csv once, store it in a list of string-lists
         List<List<String>> lines = getLines(file);
 
         //get Maps of countries, continents and world-entities
@@ -50,8 +56,6 @@ public class Main {
         if(by.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
         if(by.equalsIgnoreCase("continent")) processRequest(continents, covidReports);
         if(by.equalsIgnoreCase("country"))   processRequest(countries, covidReports);
-
-        //processRequest(countries, covidReports);
 
         //end and process program execution time
         long endTime = System.nanoTime();
@@ -163,7 +167,19 @@ public class Main {
     }
 
     private static void processArgs(String[] args) {
-        //TODO: write the actual implementation of argument-processing
+        //i'm cheating a little by using a small loop to deal with flags
+        for (int i = 0 ; i < args.length-1; ++i){
+            if(args[i].equalsIgnoreCase("-file"))
+                file = args[i+1];
+            if(args[i].equalsIgnoreCase("-stat"))
+                stat = args[i+1];
+            if(args[i].equalsIgnoreCase("-limit"))
+                limit = Integer.parseInt(args[i+1]);
+            if(args[i].equalsIgnoreCase("-by"))
+                by = args[i+1];
+            if(args[i].equalsIgnoreCase("-display"))
+                display = args[i+1];
+        }
 
         //create and populate filteroptions to include all possible combinations of
         filterOptions = new HashMap<>();
