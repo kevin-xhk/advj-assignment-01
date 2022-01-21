@@ -15,12 +15,12 @@ public class Main {
     //parameters are hardcoded for the time being
     //static String file    = "/home/kev/Downloads/owid-covid-data.csv";
     static String file    = "E:\\Internet DLs\\owid-covid-data (1).csv";
-    static String stat    = "max";     //either "min" or "max"
-    static int    limit   = 3;        //from 1 to 100
-    static String by      = "COUNTRY"; //either "DATE", "COUNTRY" or "CONTINENT"
-    static String display = "ND";      //"NC" "NCS" "ND" "NDS" "NT"
+    static String stat    = "max";                            //either "min" or "max"
+    static int    limit   = 3;                                //from 1 to 100
+    static String by      = "COUNTRY";                        //either "DATE", "COUNTRY" or "CONTINENT"
+    static String display = "NC";                             //"NC" "NCS" "ND" "NDS" "NT"
 
-    static Map<String, Comparator<? super CovidReport>> aaaa = new HashMap<>();
+    static Map<String, Comparator<? super CovidReport>> filterOptions;
 
     //courtesy of https://stackoverflow.com/a/27872852
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -142,52 +142,51 @@ public class Main {
 
 
     private static void processRequest(Map<Integer, Entity> entities, Map<Integer, CovidReport> covidReports) {
-
-        List<String> entityNames = entities.values().stream()
-                .map(x -> x.getIsocode())
+        //get isocodes of our entities of interest
+        List<String> entityIsoCodes = entities.values().stream()
+                .map(Entity::getIsocode)
                 .sorted()
                 .toList();
-        //entityNames.stream().forEach(System.out::println);
 
-        List<CovidReport> output = null;
-
-        //TODO FILTER COVIDREPORTS BASED ON ENTITYNAMES ENTRIES
-        // https://stackoverflow.com/questions/27822703/java-8-stream-filtering-value-of-list-in-a-list
+        List<CovidReport> output;
+        String optionCode = display.toLowerCase()+"-"+stat.toLowerCase();
+        
         output = covidReports.values().stream()
-                .sorted(aaaa.get(display.toLowerCase()+"-"+stat.toLowerCase()))
-                .limit(limit)
+                .filter(x -> entityIsoCodes.contains(x.getIsocode())) //filter based on BY
+                .sorted(filterOptions.get(optionCode))                //sort   based on DISPLAY + STAT
+                .limit(limit)                                         //limit  based on LIMIT
                 .toList();
 
+        //output to console
         System.out.println("OUTPUT: ");
-        //output.stream().forEach(x -> System.out.println(x.getNewCases() + " " + x.getIsocode()));
         output.stream().forEach(System.out::println);
     }
 
     private static void processArgs(String[] args) {
         //TODO: write the actual implementation of argument-processing
 
-//        aaaa.put("nc-max", (x, y) -> {
-//            return y.getNewCases() - x.getNewCases();
-//        });
-        aaaa.put("nc-max", Comparator.comparingInt(CovidReport::getNewCases).reversed());
-        aaaa.put("nc-min", Comparator.comparingInt(CovidReport::getNewCases));
-        aaaa.put("ncs-max", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed).reversed());
-        aaaa.put("ncs-min", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed));
-        aaaa.put("nd-max", Comparator.comparingInt(CovidReport::getNewDeaths).reversed());
-        aaaa.put("nd-min", Comparator.comparingInt(CovidReport::getNewDeaths));
-        aaaa.put("nds-max", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed).reversed());
-        aaaa.put("nds-min", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed));
-        aaaa.put("nt-max", Comparator.comparingInt(CovidReport::getNewTests).reversed());
-        aaaa.put("nt-min", Comparator.comparingInt(CovidReport::getNewTests));
+        //create and populate filteroptions to include all possible combinations of
+        filterOptions = new HashMap<>();
+        filterOptions.put("nc-max",  Comparator.comparingInt(CovidReport::getNewCases).reversed());
+        filterOptions.put("nc-min",  Comparator.comparingInt(CovidReport::getNewCases));
+        filterOptions.put("ncs-max", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed).reversed());
+        filterOptions.put("ncs-min", Comparator.comparingDouble(CovidReport::getNewCasesSmoothed));
+        filterOptions.put("nd-max",  Comparator.comparingInt(CovidReport::getNewDeaths).reversed());
+        filterOptions.put("nd-min",  Comparator.comparingInt(CovidReport::getNewDeaths));
+        filterOptions.put("nds-max", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed).reversed());
+        filterOptions.put("nds-min", Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed));
+        filterOptions.put("nt-max",  Comparator.comparingInt(CovidReport::getNewTests).reversed());
+        filterOptions.put("nt-min",  Comparator.comparingInt(CovidReport::getNewTests));
     }
 
     private static void printUsageError() {
-        System.out.println("USAGE: -file [filepath] -param1 [value1] -param2 [value2] -paramN valueN … \n"
-            + "-file:    path to file\n"
-            + "-stat:    either \'min\' or \'max\'\n"
-            + "-limit:   integer included in [1, 100] \n"
-            + "-by:      \'nc\', \'ncs\', \'nd\', \'nds\', \'nt\'\n"
-            + "-display: \'date\', \'continent\', \'country\'");
+        System.out.println("""
+                USAGE: -file [filepath] -param1 [value1] -param2 [value2] -paramN valueN …\s
+                -file:    path to file
+                -stat:    either 'min' or 'max'
+                -limit:   integer included in [1, 100]\s
+                -by:      'nc', 'ncs', 'nd', 'nds', 'nt'
+                -display: 'date', 'continent', 'country'""");
     }
 
     private static List<String> getColumns(List<List<String>> lines) {
