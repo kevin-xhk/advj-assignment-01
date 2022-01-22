@@ -2,14 +2,14 @@ package com.company;
 
 public class Country implements Entity {
     String isocode;
-    String continent;
+    String continentIsocode;
     String location;
     String population;
     String medianage;
 
     public Country(String isocode, String continent, String location, String population, String medianage) {
         this.isocode = isocode;
-        this.continent = continent;
+        this.continentIsocode = continent;
         this.location = location;
         this.population = population;
         this.medianage = medianage;
@@ -23,12 +23,12 @@ public class Country implements Entity {
         this.isocode = isocode;
     }
 
-    public String getContinent() {
-        return continent;
+    public String getContinentIsocode() {
+        return continentIsocode;
     }
 
-    public void setContinent(String continent) {
-        this.continent = continent;
+    public void setContinentIsocode(String continent) {
+        this.continentIsocode = continent;
     }
 
     public String getLocation() {
@@ -60,7 +60,7 @@ public class Country implements Entity {
     public String toString() {
         return "Country{" +
                 "isocode='" + isocode + '\'' +
-                ", continent='" + continent + '\'' +
+                ", continentIsoCode='" + continentIsocode + '\'' +
                 ", location='" + location + '\'' +
                 ", population='" + population + '\'' +
                 ", medianage='" + medianage + '\'' +
