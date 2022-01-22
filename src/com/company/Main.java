@@ -68,8 +68,8 @@ public class Main {
 
         optionCode = by.toLowerCase()+"-"+stat.toLowerCase();
         output = covidReports.values().stream()
-                .filter(x -> entities.keySet().contains(x.getIsocode())) //filter based on BY
-                .sorted(filterOptions.get(optionCode))                //sort   based on DISPLAY + STAT
+                .filter(x -> entities.keySet().contains(x.getIsocode())) //filter based on DISPLAY
+                .sorted(filterOptions.get(optionCode))                //sort   based on BY + STAT
                 .limit(limit)                                         //limit  based on LIMIT
                 .toList();
 
