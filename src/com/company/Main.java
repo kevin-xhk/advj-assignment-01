@@ -16,12 +16,12 @@ public class Main {
     static String file;     // filepath
     static String stat;     // "min" or "max"
     static int    limit;    // from 1 to 100
-    static String by;       // "DATE", "COUNTRY" or "CONTINENT"
-    static String display;  // "NC" "NCS" "ND" "NDS" "NT" "NDPC"
+    static String by;       // "NC" "NCS" "ND" "NDS" "NT" "NDPC"
+    static String display;  // "DATE", "COUNTRY" or "CONTINENT"
 
     // contains the comparators needed for sorting
-    // the relevant reports based on STAT and BY parameters
-    // [key=stat+by, value=appropriate comparator]
+    // the relevant reports based on BY and STAT parameters
+    // [key=by-stat, value=appropriate comparator]
     static Map<String, Comparator<? super CovidReport>> filterOptions;
 
     public static void main(String[] args) {
@@ -51,9 +51,9 @@ public class Main {
         Map<String, CovidReport> covidReports = getCovidReports(lines);
 
         // process user request based on parameters
-        if(by.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
-        if(by.equalsIgnoreCase("continent")) processRequest(continents, covidReports);
-        if(by.equalsIgnoreCase("country"))   processRequest(countries, covidReports);
+        if(display.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
+        if(display.equalsIgnoreCase("continent")) processRequest(continents, covidReports);
+        if(display.equalsIgnoreCase("country"))   processRequest(countries, covidReports);
 
         // end and process program execution time
         long endTime = System.nanoTime();
@@ -66,7 +66,7 @@ public class Main {
         List<CovidReport> output;
         String optionCode;
 
-        optionCode = display.toLowerCase()+"-"+stat.toLowerCase();
+        optionCode = by.toLowerCase()+"-"+stat.toLowerCase();
         output = covidReports.values().stream()
                 .filter(x -> entities.keySet().contains(x.getIsocode())) //filter based on BY
                 .sorted(filterOptions.get(optionCode))                //sort   based on DISPLAY + STAT
@@ -75,7 +75,7 @@ public class Main {
 
         //output to console
         System.out.println("OUTPUT: ");
-        if(by.equalsIgnoreCase("date"))
+        if(display.equalsIgnoreCase("date"))
             output.stream()
                     .forEach(x -> System.out.println(x.getDate()));
         else
