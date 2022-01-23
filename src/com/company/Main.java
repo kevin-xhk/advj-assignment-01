@@ -41,14 +41,14 @@ public class Main {
         // where each row is itself a list of entries
         List<List<String>> lines = getLines(file);
 
+        // get Map of covid-reports
+        Map<String, CovidReport> covidReports = getCovidReports(lines);
+
         // get Maps of countries, continents and world-entities
         // to satisfy the 3NF condition
         Map<String, Entity> worldEntities = getWorldEntities(lines);
         Map<String, Entity> continents    = getContinents(lines);
         Map<String, Entity> countries     = getCountries(lines, continents);
-
-        // get Map of covid-reports
-        Map<String, CovidReport> covidReports = getCovidReports(lines);
 
         // process user request based on parameters
         if(display.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
@@ -88,6 +88,86 @@ public class Main {
     }
 
     // methods for getting the needed maps
+    private static Map<String, CovidReport> getCovidReports(List<List<String>> lines) {
+        //save indices needed by CovidReport's constructor
+        Map<String, CovidReport> output;
+        List<String> cols;
+
+        //get the indices of our columns of interest
+        cols = getColumns(lines);
+        int cod = cols.indexOf("iso_code");
+        int dt =  cols.indexOf("date");
+        int tc =  cols.indexOf("total_cases");
+        int nc =  cols.indexOf("new_cases");
+        int ncs = cols.indexOf("new_cases_smoothed");
+        int td =  cols.indexOf("total_deaths");
+        int nd =  cols.indexOf("new_deaths");
+        int nds = cols.indexOf("new_deaths_smoothed");
+        int rr =  cols.indexOf("reproduction_rate");
+        int nt =  cols.indexOf("new_tests");
+        int tt =  cols.indexOf("total_tests");
+        int si =  cols.indexOf("stringency_index");
+
+        output = lines.stream()
+                .skip(1)        //skips 'column-names' row
+                .map(x -> new CovidReport(
+                        x.get(cod),
+                        x.get(dt),
+                        x.get(tc),
+                        x.get(nc),
+                        x.get(ncs),
+                        x.get(td),
+                        x.get(nd),
+                        x.get(nds),
+                        x.get(rr),
+                        x.get(nt),
+                        x.get(tt),
+                        x.get(si)))
+                .collect(Collectors.toMap(
+                        (x -> (x.getIsocode() + x.getDate())), //make isocode + date as composite key
+                        Function.identity()));
+        System.out.println("REPORTS: " + output.size() + "\n");
+
+        //uncomment this for verbose output
+        //output.entrySet().stream().forEach(System.out::println);
+
+        return output;
+    }
+    private static Map<String, Entity> getWorldEntities(List<List<String>> lines) {
+        Map<String,Entity> output;
+        List<String> cols;
+
+        //get the indices of our columns of interest
+        cols = getColumns(lines);
+        int cod = cols.indexOf("iso_code");
+        int cnt = cols.indexOf("continent");
+        int loc = cols.indexOf("location");
+        int pop = cols.indexOf("population");
+        int ma  = cols.indexOf("median_age");
+
+        output = lines.stream()
+                .skip(1)                                //skip column names
+                .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
+                .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
+                .filter(x -> (x.get(loc).contains("income") ||
+                        x.get(loc).contains("International") ||
+                        x.get(loc).contains("Union") ||
+                        x.get(loc).contains("World")))
+                .map(x -> new WorldEntity (               //create a Country from List<String> fields
+                        x.get(cod),
+                        x.get(loc),
+                        x.get(pop),
+                        x.get(ma)))
+                .collect(Collectors.toMap(
+                        (WorldEntity::getIsocode), //make isocode + date as composite key
+                        Function.identity()));
+        System.out.println("WORLD ENTITIES: " + output.size());
+
+        //uncomment this for verbose output
+        //output.entrySet().stream().forEach(System.out::println);
+
+        return output;
+    }
     private static Map<String, Entity> getContinents(List<List<String>> lines) {
         Map<String,Entity> output;
         List<String> cols;
@@ -161,86 +241,8 @@ public class Main {
 
         return output;
     }
-    private static Map<String, Entity> getWorldEntities(List<List<String>> lines) {
-        Map<String,Entity> output;
-        List<String> cols;
 
-        //get the indices of our columns of interest
-        cols = getColumns(lines);
-        int cod = cols.indexOf("iso_code");
-        int cnt = cols.indexOf("continent");
-        int loc = cols.indexOf("location");
-        int pop = cols.indexOf("population");
-        int ma  = cols.indexOf("median_age");
 
-        output = lines.stream()
-                .skip(1)                                //skip column names
-                .filter(distinctByKey(x -> x.get(cod))) //pick only 1 entry per iso_code
-                .filter(x -> x.get(cnt).equals(""))     //entries w/out continent are not countries
-                .filter(x -> (x.get(loc).contains("income") ||
-                        x.get(loc).contains("International") ||
-                        x.get(loc).contains("Union") ||
-                        x.get(loc).contains("World")))
-                .map(x -> new WorldEntity (               //create a Country from List<String> fields
-                        x.get(cod),
-                        x.get(loc),
-                        x.get(pop),
-                        x.get(ma)))
-                .collect(Collectors.toMap(
-                        (WorldEntity::getIsocode), //make isocode + date as composite key
-                        Function.identity()));
-        System.out.println("WORLD ENTITIES: " + output.size());
-
-        //uncomment this for verbose output
-        //output.entrySet().stream().forEach(System.out::println);
-
-        return output;
-    }
-    private static Map<String, CovidReport> getCovidReports(List<List<String>> lines) {
-        //save indices needed by CovidReport's constructor
-        Map<String, CovidReport> output;
-        List<String> cols;
-
-        //get the indices of our columns of interest
-        cols = getColumns(lines);
-        int cod = cols.indexOf("iso_code");
-        int dt =  cols.indexOf("date");
-        int tc =  cols.indexOf("total_cases");
-        int nc =  cols.indexOf("new_cases");
-        int ncs = cols.indexOf("new_cases_smoothed");
-        int td =  cols.indexOf("total_deaths");
-        int nd =  cols.indexOf("new_deaths");
-        int nds = cols.indexOf("new_deaths_smoothed");
-        int rr =  cols.indexOf("reproduction_rate");
-        int nt =  cols.indexOf("new_tests");
-        int tt =  cols.indexOf("total_tests");
-        int si =  cols.indexOf("stringency_index");
-
-        output = lines.stream()
-                .skip(1)        //skips 'column-names' row
-                .map(x -> new CovidReport(
-                        x.get(cod),
-                        x.get(dt),
-                        x.get(tc),
-                        x.get(nc),
-                        x.get(ncs),
-                        x.get(td),
-                        x.get(nd),
-                        x.get(nds),
-                        x.get(rr),
-                        x.get(nt),
-                        x.get(tt),
-                        x.get(si)))
-                .collect(Collectors.toMap(
-                        (x -> (x.getIsocode() + x.getDate())), //make isocode + date as composite key
-                        Function.identity()));
-        System.out.println("REPORTS: " + output.size() + "\n");
-
-        //uncomment this for verbose output
-        //output.entrySet().stream().forEach(System.out::println);
-
-        return output;
-    }
 
     // helpers for getting lines
     private static List<String> getColumns(List<List<String>> lines) {
