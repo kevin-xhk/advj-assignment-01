@@ -22,7 +22,7 @@ public class Main {
     // contains the comparators needed for sorting
     // the relevant reports based on BY and STAT parameters
     // [key=by-stat, value=appropriate comparator]
-    static Map<String, Comparator<? super CovidReport>> filterOptions;
+    static Map<String, Comparator<? super CovidReport>> sortingOptions;
 
     public static void main(String[] args) {
         // make sure we have the number of args needed
@@ -50,10 +50,13 @@ public class Main {
         Map<String, Entity> continents    = getContinents(lines);
         Map<String, Entity> countries     = getCountries(lines, continents);
 
-        // process user request based on parameters
-        if(display.equalsIgnoreCase("date"))      processRequest(worldEntities, covidReports);
-        if(display.equalsIgnoreCase("continent")) processRequest(continents, covidReports);
-        if(display.equalsIgnoreCase("country"))   processRequest(countries, covidReports);
+        // process user request based on scope defined by display parameter
+        if(display.equalsIgnoreCase("date"))        //scope: world entities
+            processRequest(worldEntities, covidReports);
+        if(display.equalsIgnoreCase("continent"))   //scope: continents
+            processRequest(continents, covidReports);
+        if(display.equalsIgnoreCase("country"))     //scope: countries
+            processRequest(countries, covidReports);
 
         // end and process program execution time
         long endTime = System.nanoTime();
@@ -69,7 +72,7 @@ public class Main {
         optionCode = by.toLowerCase()+"-"+stat.toLowerCase();
         output = covidReports.values().stream()
                 .filter(x -> entities.keySet().contains(x.getIsocode())) //filter based on DISPLAY
-                .sorted(filterOptions.get(optionCode))                //sort   based on BY + STAT
+                .sorted(sortingOptions.get(optionCode))                //sort   based on BY + STAT
                 .limit(limit)                                         //limit  based on LIMIT
                 .toList();
 
@@ -289,19 +292,19 @@ public class Main {
         }
 
         //create and populate filteroptions to include all possible combinations of
-        filterOptions = new HashMap<>();
-        filterOptions.put("nc-max",   Comparator.comparingInt(CovidReport::getNewCases).reversed());
-        filterOptions.put("nc-min",   Comparator.comparingInt(CovidReport::getNewCases));
-        filterOptions.put("ncs-max",  Comparator.comparingDouble(CovidReport::getNewCasesSmoothed).reversed());
-        filterOptions.put("ncs-min",  Comparator.comparingDouble(CovidReport::getNewCasesSmoothed));
-        filterOptions.put("nd-max",   Comparator.comparingInt(CovidReport::getNewDeaths).reversed());
-        filterOptions.put("nd-min",   Comparator.comparingInt(CovidReport::getNewDeaths));
-        filterOptions.put("nds-max",  Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed).reversed());
-        filterOptions.put("nds-min",  Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed));
-        filterOptions.put("nt-max",   Comparator.comparingInt(CovidReport::getNewTests).reversed());
-        filterOptions.put("nt-min",   Comparator.comparingInt(CovidReport::getNewTests));
-        filterOptions.put("ndpc-max", Comparator.comparingDouble(CovidReport::getNewDeathsPerCase).reversed());
-        filterOptions.put("ndpc-min", Comparator.comparingDouble(CovidReport::getNewDeathsPerCase));
+        sortingOptions = new HashMap<>();
+        sortingOptions.put("nc-max",   Comparator.comparingInt(CovidReport::getNewCases).reversed());
+        sortingOptions.put("nc-min",   Comparator.comparingInt(CovidReport::getNewCases));
+        sortingOptions.put("ncs-max",  Comparator.comparingDouble(CovidReport::getNewCasesSmoothed).reversed());
+        sortingOptions.put("ncs-min",  Comparator.comparingDouble(CovidReport::getNewCasesSmoothed));
+        sortingOptions.put("nd-max",   Comparator.comparingInt(CovidReport::getNewDeaths).reversed());
+        sortingOptions.put("nd-min",   Comparator.comparingInt(CovidReport::getNewDeaths));
+        sortingOptions.put("nds-max",  Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed).reversed());
+        sortingOptions.put("nds-min",  Comparator.comparingDouble(CovidReport::getNewDeathsSmoothed));
+        sortingOptions.put("nt-max",   Comparator.comparingInt(CovidReport::getNewTests).reversed());
+        sortingOptions.put("nt-min",   Comparator.comparingInt(CovidReport::getNewTests));
+        sortingOptions.put("ndpc-max", Comparator.comparingDouble(CovidReport::getNewDeathsPerCase).reversed());
+        sortingOptions.put("ndpc-min", Comparator.comparingDouble(CovidReport::getNewDeathsPerCase));
     }
     private static void printUsageError() {
         System.out.println("""
