@@ -51,12 +51,20 @@ public class Main {
         Map<String, Entity> countries     = getCountries(lines, continents);
 
         // process user request based on scope defined by display parameter
-        if(display.equalsIgnoreCase("date"))        //scope: world entities
-            processRequest(worldEntities, covidReports);
-        if(display.equalsIgnoreCase("continent"))   //scope: continents
-            processRequest(continents, covidReports);
-        if(display.equalsIgnoreCase("country"))     //scope: countries
-            processRequest(countries, covidReports);
+        switch(display.toLowerCase()){
+            case "date":        //scope: world-entities
+                processRequest(worldEntities, covidReports);
+                break;
+            case "continent":   //scope: continents
+                processRequest(continents, covidReports);
+                break;
+            case "country":     //scope: countries
+                processRequest(countries,covidReports);
+                break;
+            default:            //wrong user input, end program
+                printUsageError();
+                return;
+        }
 
         // end and process program execution time
         long endTime = System.nanoTime();
@@ -244,8 +252,6 @@ public class Main {
 
         return output;
     }
-
-
 
     // helpers for getting lines
     private static List<String> getColumns(List<List<String>> lines) {
